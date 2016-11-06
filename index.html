@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <style type = "text/css">
+    svg{
+      border: 1px solid rgb(93,39,200)
+    }
+    circle {
+  fill-opacity: 0.8;
+}
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+		var xdim = "Sample_Size",
+    ydim = "Data_value",
+    colordim = "Locationdesc";
+    
+    var margin = { top: 15, right: 12, bottom: 33, left: 30 },
+    width = 500 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+    
+    
+  d3.csv("brfss_2011-present.csv", function(error, data) {
+  if (error) console.log(error);
+    console.log(data)
+
+  // coerce the data to a number
+  		data.forEach(function(d) {
+    	d[xdim] = +d[xdim];
+    	d[ydim] = +d[ydim];
+  	});
+      
+      
+  var xAxis = d3.axisBottom()
+    .scale(xscale);
+
+  var yAxis = d3.axisLeft()
+    .scale(yscale);
+    
+    
+    
+    var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform", "translate(" + [margin.left, margin.top] + ")");
+    
+    svg.append("g")
+    .attr("class", "y--axis")
+    .call(yAxis);
+    
+    svg.append("g")
+    .attr("class", "x--axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+ 
+      // join the data to some circle elements
+  var enter = svg.selectAll("circle")
+    .data(data)
+    .enter().append("circle")
+    .attr("fill", function(d) { return color(d[colordim]); })
+    .attr("cx", function(d) { return xscale(d[xdim]); })
+    .attr("cy", function(d) { return yscale(d[ydim]); })
+    .attr("r", 2.5)
+    .on("mouseover", function(d) {
+      console.log(d);
+    });
+
+  console.log(data);
+});
+
+  </script>
+</body>
