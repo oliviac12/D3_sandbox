@@ -14,62 +14,121 @@
 
 <body>
   <script type="text/javascript">
-		var xdim = "Sample_Size",
-    ydim = "Data_value",
-    colordim = "Locationdesc";
-    
+		var xdim = "investmen_Loan",
+    ydim = "investment_approved",
+    colordim = "Sector";
+
     var margin = { top: 15, right: 12, bottom: 33, left: 30 },
     width = 500 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
-    
-    
-  d3.csv("brfss_2011-present.csv", function(error, data) {
+
+
+    var data;
+    var xScale = d3.scaleLinear();
+    var yScale = d3.scaleLinear();
+    var duration = 1500;
+    var year = 2;
+
+
+        var svg = d3.select("body").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform", "translate(" + [margin.left, margin.top] + ")");
+
+
+    function update(){
+      var filteredData = data.filter(function(d){
+        return d.year === year;
+      });
+
+   // circles are the update selction
+      var circles = svg.selectAll('circle')
+          .data(filteredData, function(d) {
+            return d.sector + d.investmen_Loan
+          });
+    //remove exit selection
+      circles.exit()
+        .transition().duration(duration)
+        .attr('r', 0)
+      .remove();
+
+ // create enter
+    var enter = circles
+        .enter().append('circle')
+        .attr('cx', function(d) { return xScale(d.investmen_Loan); });
+    enter.transition()
+      .delay(function(d, i) {console.log(i, d); return i * 100})
+      .duration(duration)
+      .attr('r', 10)
+      .attr('cy', function(d) {return yScale(d.investment_approved);})
+      .attr('cx', function(d) {return xScale(d.investmen_Loan);})
+      .attr('fill', function(d) {return colorScale(d.Sector);});
+
+      circles.transition()
+        .duration(duration)
+        .attr('r', 10)
+        .attr('cy', function(d) {return yScale(d.investment_approved);})
+        .attr('cx', function(d) {return xScale(d.investmen_Loan);})
+        .attr('fill', function(d) {return colorScale(d.Sector);});
+
+       console.log(filteredData)
+      };
+
+   setInterval(function(){
+     year = year + 1;
+     if (year > 16) {
+       year = 2;
+     }
+     update();
+   }, duration * 2);
+
+
+  d3.csv("Renwable_clean.csv", function(error, response) {
   if (error) console.log(error);
-    console.log(data)
+    console.log(response)
 
   // coerce the data to a number
-  		data.forEach(function(d) {
+  		response.forEach(function(d) {
     	d[xdim] = +d[xdim];
     	d[ydim] = +d[ydim];
+      d.year = +d.year;
   	});
-      
-      
+
+    yScale
+    .range([height, 0])
+    .domain([0, d3.max(response, function(d) { return d[ydim]; })]);
+    // .round(true);
+
+  xScale
+    .range([0, width])
+    .domain([0, d3.max(response, function(d) { return d[xdim]; })]);
+
   var xAxis = d3.axisBottom()
-    .scale(xscale);
+    .scale(xScale);
 
   var yAxis = d3.axisLeft()
-    .scale(yscale);
-    
-    
-    
-    var svg = d3.select("body").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform", "translate(" + [margin.left, margin.top] + ")");
-    
+    .scale(yScale);
+    //
+    // var svg = d3.select("body").append("svg")
+    //   .attr("width", width + margin.left + margin.right)
+    //   .attr("height", height + margin.top + margin.bottom)
+    // .append("g")
+    //   .attr("transform", "translate(" + [margin.left, margin.top] + ")");
+
     svg.append("g")
     .attr("class", "y--axis")
     .call(yAxis);
-    
+
     svg.append("g")
     .attr("class", "x--axis")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
- 
-      // join the data to some circle elements
-  var enter = svg.selectAll("circle")
-    .data(data)
-    .enter().append("circle")
-    .attr("fill", function(d) { return color(d[colordim]); })
-    .attr("cx", function(d) { return xscale(d[xdim]); })
-    .attr("cy", function(d) { return yscale(d[ydim]); })
-    .attr("r", 2.5)
-    .on("mouseover", function(d) {
-      console.log(d);
-    });
 
-  console.log(data);
+
+  colorScale = d3.scaleOrdinal(d3.schemeCategory20);
+
+  data = response;
 });
 
   </script>
