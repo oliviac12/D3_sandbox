@@ -5,6 +5,8 @@
   <style type = "text/css">
     svg{
       border: 1px solid rgb(93,39,200)
+      text{
+    font-size: 14px
     }
     circle {
   fill-opacity: 0.8;
@@ -29,18 +31,42 @@
     var duration = 1500;
     var year = 2;
 
+    var chart = d3.select("body")
+        .append("div")
 
-        var svg = d3.select("body").append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-          .attr("transform", "translate(" + [margin.left, margin.top] + ")");
+    var header = chart.append("h2")
+    // .datum(nested[3]); // add data to the chart
+
+
+    var svg = chart.append('svg')
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform", "translate(" + [margin.left, margin.top] + ")");
 
 
     function update(){
       var filteredData = data.filter(function(d){
         return d.year === year;
       });
+
+      var headers = header.text(year)
+
+      headers.exit()
+        .transition().duration(duration)
+      .remove();
+
+      var header_enter = headers
+          .enter().append('h2')
+
+        header_enter.transition()
+          .delay(function(d, i) {console.log(i, d); return i * 100})
+          .duration(duration)
+
+        headers.transition()
+          .duration(duration)
+
+   // already know what data we have        )
 
    // circles are the update selction
       var circles = svg.selectAll('circle')
@@ -72,7 +98,7 @@
         .attr('cx', function(d) {return xScale(d.investmen_Loan);})
         .attr('fill', function(d) {return colorScale(d.Sector);});
 
-       console.log(filteredData)
+      //  console.log(filteredData)
       };
 
    setInterval(function(){
@@ -109,12 +135,7 @@
 
   var yAxis = d3.axisLeft()
     .scale(yScale);
-    //
-    // var svg = d3.select("body").append("svg")
-    //   .attr("width", width + margin.left + margin.right)
-    //   .attr("height", height + margin.top + margin.bottom)
-    // .append("g")
-    //   .attr("transform", "translate(" + [margin.left, margin.top] + ")");
+
 
     svg.append("g")
     .attr("class", "y--axis")
