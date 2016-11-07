@@ -29,7 +29,7 @@
     var xScale = d3.scaleLinear();
     var yScale = d3.scaleLinear();
     var duration = 1500;
-    var year = 2;
+    var year = 2002;
 
     var chart = d3.select("body")
         .append("div")
@@ -103,8 +103,8 @@
 
    setInterval(function(){
      year = year + 1;
-     if (year > 16) {
-       year = 2;
+     if (year > 2016) {
+       year = 2002;
      }
      update();
    }, duration * 2);
